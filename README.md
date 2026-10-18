@@ -1,6 +1,6 @@
 # OpenSEO — open-source Semrush/Ahrefs alternative for you and your AI agent (v0.1.13). Deploy on Railway with one click.
 
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/TEMPLATE_CODE)
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/e-Iq5E)
 
 [OpenSEO](https://github.com/every-app/open-seo) (MIT) is a pay-as-you-go SEO tool: keyword research, rank tracking, competitor insights, backlinks, site audits, AI visibility tracking, shareable reports, and a built-in **MCP server** so Claude Code, Codex, ChatGPT, OpenClaw or Hermes can use your SEO data. There is no subscription. You bring your own [DataForSEO](https://dataforseo.com/) key and pay DataForSEO directly for what you use (the hosted openseo.so adds a 28% markup).
 
