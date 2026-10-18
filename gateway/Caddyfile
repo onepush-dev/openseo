@@ -1,0 +1,35 @@
+{
+	admin off
+	auto_https off
+	persist_config off
+	servers {
+		trusted_proxies static 0.0.0.0/0 ::/0
+	}
+}
+
+:{$PORT} {
+	# Gateway liveness (no auth). Railway healthcheck for this service.
+	handle /healthz {
+		respond "ok" 200
+	}
+
+	# OpenSEO's own setup/health report (no auth, no secret values).
+	handle /api/health {
+		reverse_proxy {$OPENSEO_UPSTREAM}
+	}
+
+	# Everything else (UI, server functions, /mcp, /agents websockets) needs the login.
+	handle {
+		basic_auth {
+			{$OPENSEO_USERNAME} {$OPENSEO_PASSWORD_HASH}
+		}
+		reverse_proxy {$OPENSEO_UPSTREAM} {
+			flush_interval -1
+		}
+	}
+
+	# Shown while OpenSEO is (re)building after a deploy (~1-2 min).
+	handle_errors 502 503 504 {
+		respond "OpenSEO is starting. The first boot builds the app, which takes about 2 minutes. Refresh shortly." 503
+	}
+}

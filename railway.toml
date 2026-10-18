@@ -1,0 +1,20 @@
+# OpenSEO v0.1.13 — official image, pinned by tag and digest.
+# Reference config for the private "OpenSEO" service. Railway can't build from this
+# repo (image-only deploy); the marketplace template is generated from the live project.
+# The public "Gateway" service (Caddy login wall) is in gateway/railway.toml.
+[build]
+image = "ghcr.io/every-app/open-seo:v0.1.13@sha256:314ac3e08ee92a6b946d203d05421396918f66786678a030fbc62a64b877b8e8"
+
+[deploy]
+# No start command: the image CMD (deploy/docker/docker-entrypoint.sh) runs the env
+# preflight, applies D1 (SQLite) migrations, builds the app once per image/env
+# fingerprint (~1-2 min), then serves `vite preview` on 0.0.0.0:$PORT (3001)
+# plus the 5-minute scheduler for rank tracking / AI visibility.
+# /api/health is OpenSEO's unauthenticated setup + database check.
+healthcheckPath = "/api/health"
+healthcheckTimeout = 900
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+# Everything OpenSEO stores (D1/SQLite database, KV, R2 objects, Durable Object
+# SQLite for the SAM agent) lives in the local wrangler state directory.
+requiredMountPath = "/app/.wrangler"
