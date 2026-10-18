@@ -24,9 +24,9 @@ This template runs the **official v0.1.13 image** behind a password-protected ga
 
 **Gateway** start command (also in [`gateway/start-command.txt`](gateway/start-command.txt)):
 ```sh
-sh -c 'export OPENSEO_PASSWORD_HASH="$(caddy hash-password --plaintext "$OPENSEO_PASSWORD")" && printf "%s\n" "$CADDYFILE" > /etc/caddy/Caddyfile && exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile'
+sh -c 'export OPENSEO_PASSWORD_HASH="$(caddy hash-password --plaintext "$OPENSEO_PASSWORD")" && printf %s "$CADDYFILE_B64" | base64 -d > /etc/caddy/Caddyfile && exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile'
 ```
-`CADDYFILE` holds [`gateway/Caddyfile`](gateway/Caddyfile). `/healthz` and `/api/health` are open. Everything else (UI, server functions, `/mcp`, `/agents` websockets) needs the login. Railway's `X-Forwarded-*` headers pass through, so OpenSEO builds correct `https://` links.
+`CADDYFILE_B64` holds [`gateway/Caddyfile`](gateway/Caddyfile) as one base64 line ([`gateway/caddyfile.b64`](gateway/caddyfile.b64), made with `base64 -w0 gateway/Caddyfile`), so the value survives copy/paste into Railway's template editor. `/healthz` and `/api/health` are open. Everything else (UI, server functions, `/mcp`, `/agents` websockets) needs the login. Railway's `X-Forwarded-*` headers pass through, so OpenSEO builds correct `https://` links.
 
 ## Variables
 ### OpenSEO
@@ -47,7 +47,7 @@ sh -c 'export OPENSEO_PASSWORD_HASH="$(caddy hash-password --plaintext "$OPENSEO
 | OPENSEO_USERNAME | `admin` | |
 | OPENSEO_PASSWORD | `${{secret(24)}}` | **your login password** |
 | OPENSEO_UPSTREAM | `${{OpenSEO.RAILWAY_PRIVATE_DOMAIN}}:${{OpenSEO.PORT}}` | |
-| CADDYFILE | contents of `gateway/Caddyfile` | |
+| CADDYFILE_B64 | contents of [`gateway/caddyfile.b64`](gateway/caddyfile.b64) | `base64 -w0 gateway/Caddyfile`, decoded at boot |
 
 All values are also in [`env.example`](env.example).
 
@@ -62,6 +62,9 @@ To change the password, edit `OPENSEO_PASSWORD` on Gateway. It's re-hashed on th
 
 ## Custom domain
 Add the domain to **Gateway** (port 8080). Keep `ALLOWED_HOST=.railway.app`, because Railway's healthcheck needs it. Then set `BETTER_AUTH_URL=https://your.domain` on **OpenSEO**. In `local_noauth` mode that variable only adds a second host to the allow-list. Without it, vite answers "Blocked request" for the new hostname.
+
+## Changing the gateway config
+Edit `gateway/Caddyfile`, run `base64 -w0 gateway/Caddyfile > gateway/caddyfile.b64`, and paste the file's single line into `CADDYFILE_B64` on **Gateway**. It is decoded on the next boot.
 
 ## Persistence
 - **OpenSEO volume `/app/.wrangler`:** projects, keywords, rank history, audits, reports, AI-visibility data, files, and agent chat state.

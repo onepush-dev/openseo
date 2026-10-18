@@ -1,1 +1,1 @@
-sh -c 'export OPENSEO_PASSWORD_HASH="$(caddy hash-password --plaintext "$OPENSEO_PASSWORD")" && printf "%s\n" "$CADDYFILE" > /etc/caddy/Caddyfile && exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile'
+sh -c 'export OPENSEO_PASSWORD_HASH="$(caddy hash-password --plaintext "$OPENSEO_PASSWORD")" && printf %s "$CADDYFILE_B64" | base64 -d > /etc/caddy/Caddyfile && exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile'

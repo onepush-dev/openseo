@@ -4,9 +4,10 @@
 image = "caddy:2.11.7-alpine@sha256:d8542f48d34a9cf4e4c11a478865229840e87e4c96ea3f439101f31a5d35f75f"
 
 [deploy]
-# Hashes OPENSEO_PASSWORD with bcrypt at boot, writes the CADDYFILE variable
-# (contents of gateway/Caddyfile) to disk and runs Caddy on $PORT (8080).
-startCommand = "sh -c 'export OPENSEO_PASSWORD_HASH=\"$(caddy hash-password --plaintext \"$OPENSEO_PASSWORD\")\" && printf \"%s\\n\" \"$CADDYFILE\" > /etc/caddy/Caddyfile && exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile'"
+# Hashes OPENSEO_PASSWORD with bcrypt at boot, decodes the single-line CADDYFILE_B64
+# variable (gateway/caddyfile.b64 = `base64 -w0 gateway/Caddyfile`) to
+# /etc/caddy/Caddyfile and runs Caddy on $PORT (8080).
+startCommand = "sh -c 'export OPENSEO_PASSWORD_HASH=\"$(caddy hash-password --plaintext \"$OPENSEO_PASSWORD\")\" && printf %s \"$CADDYFILE_B64\" | base64 -d > /etc/caddy/Caddyfile && exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile'"
 # /healthz is answered by Caddy itself (no auth, no upstream call).
 healthcheckPath = "/healthz"
 healthcheckTimeout = 120
